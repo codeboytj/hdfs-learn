@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/hdfs-learn.iml" filepath="$PROJECT_DIR$/hdfs-learn.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hdfs-learn_main.iml" filepath="$PROJECT_DIR$/.idea/modules/hdfs-learn_main.iml" group="hdfs-learn" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hdfs-learn_test.iml" filepath="$PROJECT_DIR$/.idea/modules/hdfs-learn_test.iml" group="hdfs-learn" />
+    </modules>
+  </component>
+</project>
