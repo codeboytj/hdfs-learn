@@ -57,3 +57,17 @@ public static void setURLStreamHandlerFactory(URLStreamHandlerFactory fac) {
 }
 ```
 当其他程序调用setURLStreamHandlerFactory(……)方法时，会直接产生Error。因此一个jvm虚拟中只能使用一种URLStreamHandlerFactory。然而使用FileSystem API读取数据时就不会出现这种问题。
+
+## namenode与datanode
+
+HDFS中的namenode为管理节点，而工作节点是datanode。
+
+* namenode管理文件系统的命名空间，维护着文件系统树及整棵树内所有文件和目录，这些信息以命名空间镜像文件和编辑日志文件永久保存在本地磁盘上。另外，namenode还记录着每个文件中的各个块的数据节点信息。
+* datanode是文件系统的工作节点，根据需要存储并检索数据块，并定期向namenode发送所存储的块的列表。
+
+在读取数据的时候，DistributedFileSystem会调用namenode，以确定文件的每一个块的所在的datanode地址。而通常文件块会有多个副本在不同的datanode上面，那么namenode怎样的顺序返回datanode的地址呢：
+
+* 同一节点上的进程
+* 同一机架上的不同节点
+* 同一数据中心中不同机架上的节点
+* 不同数据中心中的节点
