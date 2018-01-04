@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>读取数据 - HDFS学习笔记</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u8bfb\u53d6\u6570\u636e";
+    var mkdocs_page_input_path = "read_data.md";
+    var mkdocs_page_url = "/read_data/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> HDFS学习笔记</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Java接口</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">读取数据</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#_1">读取数据</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#hadoop-url">从Hadoop Url读取数据</a></li>
+        
+            <li><a class="toctree-l4" href="#filesystem-api">通过FileSystem API读取数据</a></li>
+        
+            <li><a class="toctree-l4" href="#_2">区别</a></li>
+        
+            <li><a class="toctree-l4" href="#namenodedatanode">namenode与datanode</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../write_data/">写入数据</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Configuration/">Configuration</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../FileSystem/">FileSystem</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">HDFS学习笔记</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Java接口 &raquo;</li>
+        
+      
+    
+    <li>读取数据</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="_1">读取数据</h1>
+<h2 id="hadoop-url">从Hadoop Url读取数据</h2>
+<ul>
+<li>在hadoop根目录下，先启动hdfs：</li>
+</ul>
+<pre><code>./sbin/start-dfs.sh
+</code></pre>
+
+<ul>
+<li>在环境变量中配置hadoop，以便在命令行使用hadoop：</li>
+</ul>
+<pre><code>#hadoop环境变量
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin
+</code></pre>
+
+<ul>
+<li>将java程序类路径，临时添加到hadoop的classpath：</li>
+</ul>
+<pre><code>export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:./
+</code></pre>
+
+<ul>
+<li>运行程序</li>
+</ul>
+<pre><code>hadoop cumt.tj.learn.hadoop.hdfs.readdata.URLCat hdfs://localhost:9000/user/sky/README.txt
+</code></pre>
+
+<h2 id="filesystem-api">通过FileSystem API读取数据</h2>
+<ul>
+<li>运行程序</li>
+</ul>
+<pre><code>hadoop cumt.tj.learn.hadoop.hdfs.readdata.FileSystemCat hdfs://localhost:9000/user/sky/README.txt
+</code></pre>
+
+<h2 id="_2">区别</h2>
+<ul>
+<li>通过URL读取的时候，由于使用了URL类的静态方法setURLStreamHandlerFactory()。通过查看源码发现：</li>
+</ul>
+<pre><code>public static void setURLStreamHandlerFactory(URLStreamHandlerFactory fac) {
+    synchronized (streamHandlerLock) {
+        if (factory != null) {
+            throw new Error(&quot;factory already defined&quot;);
+        }
+        SecurityManager security = System.getSecurityManager();
+        if (security != null) {
+            security.checkSetFactory();
+        }
+        handlers.clear();
+        factory = fac;
+    }
+}
+</code></pre>
+
+<p>当其他程序调用setURLStreamHandlerFactory(……)方法时，会直接产生Error。因此一个jvm虚拟中只能使用一种URLStreamHandlerFactory。然而使用FileSystem API读取数据时就不会出现这种问题。</p>
+<h2 id="namenodedatanode">namenode与datanode</h2>
+<p>HDFS中的namenode为管理节点，而工作节点是datanode。</p>
+<ul>
+<li>namenode管理文件系统的命名空间，维护着文件系统树及整棵树内所有文件和目录，这些信息以命名空间镜像文件和编辑日志文件永久保存在本地磁盘上。另外，namenode还记录着每个文件中的各个块的数据节点信息。</li>
+<li>datanode是文件系统的工作节点，根据需要存储并检索数据块，并定期向namenode发送所存储的块的列表。</li>
+</ul>
+<p>在读取数据的时候，DistributedFileSystem会调用namenode，以确定文件的每一个块的所在的datanode地址。而通常文件块会有多个副本在不同的datanode上面，那么namenode怎样的顺序返回datanode的地址呢：</p>
+<ul>
+<li>同一节点上的进程</li>
+<li>同一机架上的不同节点</li>
+<li>同一数据中心中不同机架上的节点</li>
+<li>不同数据中心中的节点</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../write_data/" class="btn btn-neutral float-right" title="写入数据">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../write_data/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/require.js"></script>
+      <script src="../search/search.js"></script>
+
+</body>
+</html>

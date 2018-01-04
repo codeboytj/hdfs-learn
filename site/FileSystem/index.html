@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>FileSystem - HDFS学习笔记</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "FileSystem";
+    var mkdocs_page_input_path = "FileSystem.md";
+    var mkdocs_page_url = "/FileSystem/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> HDFS学习笔记</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Java接口</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../read_data/">读取数据</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../write_data/">写入数据</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Configuration/">Configuration</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">FileSystem</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#filesystem">FileSystem</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#filestemgetconfiguration-conf">FileStem.get(Configuration conf)</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">HDFS学习笔记</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>FileSystem</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="filesystem">FileSystem</h1>
+<p>FileSystem是Hadoop中文件系统的抽象类。它的实现类很多，对于单击模式使用的本地文件系统，有LocalFileSystem；对于hdfs，有DistributedFileSystem。</p>
+<hr />
+<h2 id="filestemgetconfiguration-conf">FileStem.get(Configuration conf)</h2>
+<p>这个静态工厂方法，用来根据配置获得相应的FileSystem实现。它背后干了些什么事呢：</p>
+<ul>
+<li>读取fs.defaultFs配置，如<code>hdfs://localhost:9000</code><ul>
+<li>注意：在使用<code>Configuration conf=new Configuration()</code>初始化Configuration实例的时候，并没有真正加载配置文件。此时在读取fs.defaultFs时，会加载配置文件，添加配置到conf中的一个Properties实例属性中去。</li>
+</ul>
+</li>
+<li>解析fs.defaultFs配置中的<code>scheme</code>和<code>authority</code>，即<code>hdfs</code>和<code>localhost:9000</code>，<code>scheme</code>是用来找配置文件的，如<code>scheme</code>的值为<code>hdfs</code>的时候，相应的配置文件就是<code>hdfs-site.xml</code></li>
+<li>查找相应FileSystem实现。根据<code>scheme</code>，查找配置文件中的<code>fs.hdfs.impl</code>项，如果配置文件中指定了特定的FileSystem实现，则返回，没有，则使用<code>DistributedFileSytem</code><ul>
+<li>FileSystem持有一个缓存池。找实例时，FileSystem会先查看配置文件<code>fs.hdfs.impl.disable.cache</code>的值是否为true，是则从缓存池中找相应的FileSystem实例，没有就创建一0个，有就返回，否则就直接创建。</li>
+</ul>
+</li>
+<li>初始化DistributedFileSystem实例，这其中包括使用反射调用构造函数，以及调用类的initialize()方法。<ul>
+<li>initialize()方法做的事情非常多，包括实例化DFSClient，与NameNode沟通的代理类，设置工作空间（<code>hdfs://localhost:9000/user/username</code>）等等</li>
+<li>调用父类（FileSystem）的initialize()方法。获得一个Statistics引用。这个东西是用来统计某个FileSystem的读写数据的。这个东西是每个类只对应一个实例，所以会有很多线程写一个实例。内部使用了ThreadLocal，让每个线程写数据的时候互不干扰。</li>
+<li>实例化DFSClient，DFSClient对这个类做了很清楚的解释：<code>DFSClient can connect to a Hadoop Filesystem and perform basic file tasks.  It uses the ClientProtocol to communicate with a NameNode daemon, and connects directly to DataNodes to read/write block data. Hadoop DFS users should obtain an instance of DistributedFileSystem, which uses DFSClient to handle filesystem tasks.</code>。与NameNode和DataNode进行交互，DistrubutedFileSystem持有对DFSClient的引用，用户操作DistributedFileSystem而不是DFSClient。</li>
+<li>DFSClient会根据配置文件生成<code>SpanReceiverHost</code>与<code>SpanReceiver</code>,它用来记录一些东西，具体记录什么我还没弄懂。<code>SpanReceiverHost</code>持有对<code>SpanReceiver</code>的引用，拥有一个<code>SpanReceiver</code>的TreeMap，这是有个有顺序的Map，从<code>SpanReceiverHost</code>源码的<code>loadSpanReceivers()</code>方法来看，默认是按照配置文件中的顺序存储的。配置文件中关于<code>SpanReceiver</code>的配置是在<code>hadoop.htrace.spanreceiver.classes</code>项，没配置就不会生成。初次之外，<code>SpanReceiverHost</code>还会利用<code>ShutdownHookManager</code>注册在JVM关闭之前关闭持有的所有<code>SpanReceiver</code>的线程。</li>
+<li>DFSClient会持有一个与NameNode交流的Proxy，通过socket进行通信</li>
+</ul>
+</li>
+</ul>
+<p><em>可以看出DistributedFileSystem的initialize()方法是很重要的，有时间再研究吧</em></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../Configuration/" class="btn btn-neutral" title="Configuration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../Configuration/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/require.js"></script>
+      <script src="../search/search.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>写入数据 - HDFS学习笔记</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u5199\u5165\u6570\u636e";
+    var mkdocs_page_input_path = "write_data.md";
+    var mkdocs_page_url = "/write_data/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> HDFS学习笔记</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Java接口</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../read_data/">读取数据</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">写入数据</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#_1">写入数据</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#_2">运行程序</a></li>
+        
+            <li><a class="toctree-l4" href="#namenodedatanode">namenode与datanode</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Configuration/">Configuration</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../FileSystem/">FileSystem</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">HDFS学习笔记</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Java接口 &raquo;</li>
+        
+      
+    
+    <li>写入数据</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="_1">写入数据</h1>
+<h2 id="_2">运行程序</h2>
+<ul>
+<li>运行程序，将本地文件系统中的文件，复制到HDFS中：</li>
+</ul>
+<pre><code>hadoop cumt.tj.learn.hadoop.hdfs.writedata.FileCopyWithProgress ~/.bashrc hdfs://localhost:9000/user/sky/.bashrc
+</code></pre>
+
+<ul>
+<li>使用hadoop命令，查看hdfs中的文件是否与实际文件相符：</li>
+</ul>
+<pre><code>hadoop fs -cat .bashrc
+</code></pre>
+
+<h2 id="namenodedatanode">namenode与datanode</h2>
+<p>在hadoop集群中，文件块通常会有多个副本分别存储在不同的datanode上面。那么namenode是如何决定文件块存储到哪些datanode上，以及怎么将副本存储在相应的datanode上的呢？</p>
+<p>namenode在选取datanode时，不仅要考虑写入带宽、读取带宽，还要考虑可靠性，提供真正的冗余。比如如果将所有块写入到一个datanode上面，虽然保证了带宽，但是没有实现真正的冗余，当一个datanode挂掉的时候，这个文件就gameover了。namenode最终采用这样的方式写入副本：</p>
+<ul>
+<li>在运行客户端的节点上放第一个副本，如果客户端运行在集群之外，就随机选择一个节点</li>
+<li>在第一个节点所在机架之外，随机选择一个机架的节点，存储第二个副本</li>
+<li>第二个副本所在机架上，随机选择另一个节点，存储第三个副本</li>
+<li>如果还需要存储其他副本，就在集群中随机选择节点存储 </li>
+</ul>
+<p>那么如何将副本存储在这些datanode上呢：</p>
+<ul>
+<li>写入数据时，数据会分成一个个数据包，形成“数据队列”</li>
+<li>namenode选取的datanodes构成了一个管线</li>
+<li>数据流传入第一个datanode，datanode存储完数据包后，将它们发送给第二个datanode，依次类推</li>
+<li>如果一切成功，所有datanode的返回形成“确认队列”。当收到管道内的所有datanode的确认队列之后，数据包才会从确认队列中删除</li>
+<li>如果某个datanode在写入数据期间发生故障，那么需要执行以下操作：<ul>
+<li>关闭管线，将所有数据包添加回数据队列的前端，以确保下下一个datanode不会漏掉任何数据</li>
+<li>在已经存储块，且运行正常的datanode的块中添加新标识，传送给namenode，以便故障datanode恢复正常后可以删除已经存储的部分数据块</li>
+<li>从管线中删除故障datanode，其他的datanode构成一个新管线，继续进行数据写入。当namenode注意到副本数不足的时候，会在另一个datanode上创建新的副本。</li>
+</ul>
+</li>
+<li>namenode在等待最小副本数（dfs.namenode.replication.min，默认为1）写入成功后，就能返回写入数据成功。因为它已经知道了文件由哪些块组成，写副本是可以后续或者异步进行的。</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Configuration/" class="btn btn-neutral float-right" title="Configuration">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../read_data/" class="btn btn-neutral" title="读取数据"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../read_data/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../Configuration/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/require.js"></script>
+      <script src="../search/search.js"></script>
+
+</body>
+</html>

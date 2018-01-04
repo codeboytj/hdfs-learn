@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    
+    <url>
+     <loc>/</loc>
+     <lastmod>2018-01-10</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+        
+    <url>
+     <loc>/read_data/</loc>
+     <lastmod>2018-01-10</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/write_data/</loc>
+     <lastmod>2018-01-10</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+    <url>
+     <loc>/Configuration/</loc>
+     <lastmod>2018-01-10</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/FileSystem/</loc>
+     <lastmod>2018-01-10</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+</urlset>
