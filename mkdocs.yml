@@ -4,4 +4,5 @@ pages:
     - Java接口:
         - 读取数据: read_data.md
         - 写入数据: write_data.md
+    - Configuration: Configuration.md
 theme: readthedocs
